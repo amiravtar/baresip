@@ -74,6 +74,7 @@ static void usage(void)
 			 "\t-t <sec>         Quit after <sec> seconds\n"
 			 "\t-n <net_if>      Specify network interface\n"
 			 "\t-u <parameters>  Extra UA parameters\n"
+			 "\t-M '<Key=value>'  Extra UA headers\n"
 			 "\t-v               Verbose debug\n"
 			 "\t-T               Enable timestamps log\n"
 			 "\t-c               Disable colored log\n"
@@ -86,6 +87,7 @@ int main(int argc, char *argv[])
 {
 	int af = AF_UNSPEC, run_daemon = false;
 	const char *ua_eprm = NULL;
+	const char *ua_ehdr = NULL;
 	const char *software =
 		"baresip v" BARESIP_VERSION " (" ARCH "/" OS ")";
 	const char *execmdv[16];
@@ -129,7 +131,7 @@ int main(int argc, char *argv[])
 
 #ifdef HAVE_GETOPT
 	for (;;) {
-		const int c = getopt(argc, argv, "46a:de:f:p:hu:n:vst:m:Tc");
+		const int c = getopt(argc, argv, "46a:de:f:p:huM:n:vst:m:Tc");
 		if (0 > c)
 			break;
 
@@ -199,7 +201,10 @@ int main(int argc, char *argv[])
 		case 'u':
 			ua_eprm = optarg;
 			break;
-
+		/* For mac header*/
+		case 'M':
+			ua_ehdr = optarg;
+			break;
 		case 'v':
 			log_enable_debug(true);
 			dbg_level = DBG_DEBUG;
@@ -282,20 +287,23 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-
 	/* Initialise User Agents */
 	err = ua_init(software, true, true, true);
 	if (err)
 		goto out;
 
 	uag_set_exit_handler(ua_exit_handler, NULL);
-
 	if (ua_eprm) {
 		err = uag_set_extra_params(ua_eprm);
 		if (err)
 			goto out;
 	}
-
+	/* Check for ua extra headers*/
+	if (ua_ehdr) {
+		err = uag_set_extra_headers(ua_ehdr);
+		if (err)
+			goto out;
+	}
 	if (sip_trace)
 		uag_enable_sip_trace(true);
 

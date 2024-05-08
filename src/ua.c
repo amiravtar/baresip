@@ -1143,7 +1143,23 @@ int ua_alloc(struct ua **uap, const char *aor)
 			goto out;
 		aor = buf;
 	}
-
+	/* Get extra header parameter if exist*/
+	if (uag_ehdr()) {
+		const char *ehdr = uag_ehdr();
+		if (!ehdr) {
+			goto out;
+		}
+		const char *key;
+		const char *val;
+		key = strtok((char *)ehdr, "=");
+		val = strtok(NULL, "=");
+		struct pl n;
+		struct pl v;
+		pl_set_str(&n, key);
+		pl_set_str(&v, val);
+		ua_add_custom_hdr(ua,&n,&v);
+	}
+	
 	err = account_alloc(&ua->acc, aor);
 	if (err)
 		goto out;

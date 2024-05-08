@@ -396,6 +396,7 @@ struct uag {
 	bool dnd;                      /**< Do not Disturb flag             */
 	void *arg;                     /**< UA Exit handler argument        */
 	char *eprm;                    /**< Extra UA parameters             */
+	char *ehdr;                    /**< Extra UA Header                 */
 #ifdef USE_TLS
 	struct tls *tls;               /**< TLS Context                     */
 	struct tls *wss_tls;           /**< Secure websocket TLS Context    */
@@ -404,6 +405,7 @@ struct uag {
 
 struct config_sip *uag_cfg(void);
 const char *uag_eprm(void);
+const char *uag_ehdr(void);
 bool uag_delayed_close(void);
 int uag_raise(struct ua *ua, struct le *le);
 

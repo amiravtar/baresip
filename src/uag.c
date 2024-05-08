@@ -11,7 +11,27 @@
 
 /* One instance */
 
-static struct uag uag = {.ual = LIST_INIT};
+static struct uag uag = {
+	NULL,
+	LIST_INIT,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	false,
+	0,
+	NULL,
+	NULL,
+	false,
+	false,
+	NULL,
+	NULL,
+	NULL,
+#ifdef USE_TLS
+	NULL,
+	NULL
+#endif
+};
 
 
 /* This function is called when all SIP transactions are done */
@@ -581,6 +601,7 @@ void ua_close(void)
 	uag.lsnr     = mem_deref(uag.lsnr);
 	uag.sip      = mem_deref(uag.sip);
 	uag.eprm     = mem_deref(uag.eprm);
+	uag.ehdr     = mem_deref(uag.ehdr);
 
 #ifdef USE_TLS
 	uag.tls = mem_deref(uag.tls);
@@ -1216,6 +1237,33 @@ int uag_set_extra_params(const char *eprm)
 const char *uag_eprm(void)
 {
 	return uag.eprm;
+}
+
+/**
+ * Set extra headers to use for all SIP Accounts
+ *
+ * @param eprm Extra headers
+ *
+ * @return 0 if success, otherwise errorcode
+ */
+int uag_set_extra_headers(const char *ehdr)
+{
+	uag.ehdr = mem_deref(uag.ehdr);
+
+	if (ehdr)
+		return str_dup(&uag.ehdr, ehdr);
+	return 0;
+}
+
+
+/**
+ * Get extra headers to use for all SIP Accounts
+ *
+ * @return Extra headers
+ */
+const char *uag_ehdr(void)
+{
+	return uag.ehdr;
 }
 
 
